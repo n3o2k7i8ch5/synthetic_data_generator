@@ -1,7 +1,4 @@
-import torch
 from torch import nn
-
-from sample_norm import sample_norm
 
 
 class Generator(nn.Module):
@@ -14,6 +11,8 @@ class Generator(nn.Module):
             nn.Linear(16, 64),
             nn.Tanh(),
             nn.Linear(64, 128),
+            nn.Tanh(),
+            nn.Linear(128, 128),
             nn.Tanh(),
             nn.Linear(128, in_size),
         )
@@ -29,6 +28,10 @@ class Discriminator(nn.Module):
 
         self.model = nn.Sequential(
             nn.Linear(in_size, 64),
+            nn.Tanh(),
+            nn.Linear(64, 128),
+            nn.Tanh(),
+            nn.Linear(128, 64),
             nn.Tanh(),
             nn.Linear(64, 32),
             nn.Tanh(),

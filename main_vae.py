@@ -30,7 +30,7 @@ data_train = DataLoader(
     shuffle=True
 )
 
-LATENT_SPACE_SIZE = 3
+LATENT_SPACE_SIZE = 10
 
 
 def create_autoenc() -> Autoencoder:
@@ -43,10 +43,10 @@ autoenc = create_autoenc()
 
 print(autoenc)
 
-autoenc_optimizer = torch.optim.SGD(autoenc.parameters(), lr=0.02)
+autoenc_optimizer = torch.optim.SGD(autoenc.parameters(), lr=0.1, momentum=0.01)
 
 
-def _loss(input, output, lat_mean: torch.Tensor, lat_logvar: torch.Tensor, show=False) -> Variable:
+def _loss(input, output, lat_mean: torch.Tensor, lat_logvar: torch.Tensor, show=False) -> (Variable, Variable, Variable):
     mse_loss = MSELoss()(input, output)
 
     # kl_loss = 0.5 * torch.sum(lat_var.exp() + lat_mu.pow(2) - 1.0 - lat_var)# / len(lat_var.)
@@ -61,11 +61,11 @@ def _loss(input, output, lat_mean: torch.Tensor, lat_logvar: torch.Tensor, show=
         print('mse_loss: ' + str(mse_loss.item()))
         print('kld_loss: ' + str(kld_loss.item()))
 
-    return mse_loss + kld_loss * 0.3
+    return mse_loss + kld_loss * 0.02, mse_loss, kld_loss
 
 
 def train_autoenc():
-    for epoch in range(200):
+    for epoch in range(500):
 
         loss: torch.Tensor = torch.Tensor()
 
@@ -78,7 +78,7 @@ def train_autoenc():
             out_data, lat_mean, lat_logvar = autoenc(real_data)
             # gen_data = generate_data(mu=lat_mu, var=lat_var)
 
-            loss = _loss(
+            loss, mse_loss, kld_loss = _loss(
                 input=real_data,
                 output=out_data,
                 lat_mean=lat_mean,
@@ -90,7 +90,10 @@ def train_autoenc():
 
             if epoch % 50 == 49 and n_batch == 0:
                 print('Epoch: ' + str(epoch) + ', batch:' + str(n_batch) + '/' + str(len(data_train)))
-                show_quality(real=real_data, gen=out_data)
+                show_quality(
+                    real=real_data,
+                    gen=out_data,
+                    save=True, loss=loss.item(), mse_loss=mse_loss.item(), kld_loss=kld_loss.item())
 
                 '''
                 plt.figure('Lattent mu')
@@ -106,8 +109,9 @@ def train_autoenc():
         print('loss: ' + str(loss.item()))
         # show_quality(emb_data, gen_data)
 
-    if not os.path.isdir(parent_path() + 'data'):
-        os.mkdir(parent_path() + 'data')
+    path = os.path.join(parent_path(),'data')
+    if not os.path.isdir(path):
+        os.mkdir(path)
 
     print('saving model...')
     torch.save(autoenc.state_dict(), AUTOENC_MODEL_PATH)

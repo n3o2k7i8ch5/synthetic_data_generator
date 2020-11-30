@@ -13,5 +13,5 @@ def parent_path():
 
 
 HIST_POINTS = 100
-BATCH_SIZE = 128*8
+BATCH_SIZE = 128*8*16
 INP_RAND_SIZE = 10

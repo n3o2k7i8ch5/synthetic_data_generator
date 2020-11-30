@@ -22,7 +22,7 @@ data_train = DataLoader(
     shuffle=True
 )
 
-LATENT_SPACE_SIZE = 3
+LATENT_SPACE_SIZE = 10
 IN_SIZE = 3
 
 # Initialize generator and discriminator
@@ -34,8 +34,8 @@ adversarial_loss = torch.nn.MSELoss()
 print(generator)
 print(discriminator)
 
-optimizer_G = torch.optim.Adam(generator.parameters(), lr=0.001)
-optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=0.001)
+optimizer_G = torch.optim.SGD(generator.parameters(), lr=0.001)
+optimizer_D = torch.optim.SGD(discriminator.parameters(), lr=0.002)
 
 # ----------
 #  Training

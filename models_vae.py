@@ -10,32 +10,32 @@ class AutoencoderIn(nn.Module):
         self.device = device
         super(AutoencoderIn, self).__init__()
 
-        PRE_LAT_SIZE = 8
+        PRE_LAT_SIZE = 16
 
         self.net = nn.Sequential(
-            nn.Linear(in_size, 8, bias=True),
+            nn.Linear(in_size, 32, bias=True),
             nn.Tanh(),
-            nn.Linear(8, 16, bias=True),
+            nn.Linear(32, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(16, PRE_LAT_SIZE, bias=True),
+            nn.Linear(64, PRE_LAT_SIZE, bias=True),
             nn.Tanh()
         ).to(device=device)
 
         self.mean = nn.Sequential(
-            nn.Linear(PRE_LAT_SIZE, 8, bias=True),
+            nn.Linear(PRE_LAT_SIZE, 32, bias=True),
             nn.Tanh(),
-            nn.Linear(8, 16, bias=True),
+            nn.Linear(32, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(16, latent_size, bias=True)
+            nn.Linear(64, latent_size, bias=True)
 
         ).to(device=device)
 
         self.logvar = nn.Sequential(
-            nn.Linear(PRE_LAT_SIZE, 8, bias=True),
+            nn.Linear(PRE_LAT_SIZE, 32, bias=True),
             nn.Tanh(),
-            nn.Linear(8, 16, bias=True),
+            nn.Linear(32, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(16, latent_size, bias=True),
+            nn.Linear(64, latent_size, bias=True),
 
         ).to(device=device)
 
@@ -55,11 +55,11 @@ class AutoencoderOut(nn.Module):
         super(AutoencoderOut, self).__init__()
 
         self.net = nn.Sequential(
-            nn.Linear(latent_size, 8, bias=True),
+            nn.Linear(latent_size, 32, bias=True),
             nn.Tanh(),
-            nn.Linear(8, 16, bias=True),
+            nn.Linear(32, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(16, in_size, bias=True),
+            nn.Linear(64, in_size, bias=True),
 
             # nn.Linear(latent_size, 64, bias=True),
             # nn.Tanh(),
