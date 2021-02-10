@@ -1,7 +1,9 @@
+from typing import List
+
 import numpy as np
 
 
-def load_data(size: int):
+def load_data(size: int) -> (List, int):
     data = []
 
     for i in range(size):
@@ -10,11 +12,10 @@ def load_data(size: int):
         sample_2 = np.random.normal(3, 1)
 
         if i % 2 == 0:
-            sample_3 = np.random.normal(-1, 0.2)
+            sample_3 = np.random.normal(-6, 2)
         else:
             sample_3 = np.random.normal(1, 0.2)
 
-        # data.append([sample_1, sample_1, sample_1, sample_2, sample_2, sample_2])
         data.append([sample_1, sample_2, sample_3])
 
-    return data
+    return data, len(data)

@@ -10,40 +10,37 @@ class AutoencoderIn(nn.Module):
         self.device = device
         super(AutoencoderIn, self).__init__()
 
-        PRE_LAT_SIZE = 16
+        # PRE_LAT_SIZE = 64
 
-        self.net = nn.Sequential(
-            nn.Linear(in_size, 32, bias=True),
+        self.mean = nn.Sequential(
+            nn.Linear(in_size, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(32, 64, bias=True),
+            nn.Linear(64, 128, bias=True),
             nn.Tanh(),
-            nn.Linear(64, PRE_LAT_SIZE, bias=True),
+            nn.Linear(128, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, latent_size, bias=True),
             nn.Tanh()
         ).to(device=device)
 
-        self.mean = nn.Sequential(
-            nn.Linear(PRE_LAT_SIZE, 32, bias=True),
-            nn.Tanh(),
-            nn.Linear(32, 64, bias=True),
-            nn.Tanh(),
-            nn.Linear(64, latent_size, bias=True)
-
-        ).to(device=device)
-
         self.logvar = nn.Sequential(
-            nn.Linear(PRE_LAT_SIZE, 32, bias=True),
+            nn.Linear(in_size, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(32, 64, bias=True),
+            nn.Linear(64, 128, bias=True),
             nn.Tanh(),
-            nn.Linear(64, latent_size, bias=True),
-
+            nn.Linear(128, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, latent_size, bias=True),
+            nn.Tanh()
         ).to(device=device)
 
     def forward(self, x: torch.Tensor):
-        out = self.net(x)
-
-        lat_mean = self.mean(out)
-        lat_logvar = self.logvar(out)
+        lat_mean = self.mean(x)
+        lat_logvar = self.logvar(x)
 
         return lat_mean, lat_logvar
 
@@ -55,25 +52,19 @@ class AutoencoderOut(nn.Module):
         super(AutoencoderOut, self).__init__()
 
         self.net = nn.Sequential(
-            nn.Linear(latent_size, 32, bias=True),
+            nn.Linear(latent_size, 64, bias=True),
             nn.Tanh(),
-            nn.Linear(32, 64, bias=True),
+            nn.Linear(64, 128, bias=True),
             nn.Tanh(),
-            nn.Linear(64, in_size, bias=True),
-
-            # nn.Linear(latent_size, 64, bias=True),
-            # nn.Tanh(),
-            # nn.Linear(64, 128, bias=True),
-            # nn.Tanh(),
-            # nn.Linear(128, in_size, bias=True),
-            # #nn.Tanh(),
-
+            nn.Linear(128, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, 256, bias=True),
+            nn.Tanh(),
+            nn.Linear(256, in_size, bias=True),
         ).to(device=device)
 
     def forward(self, x: torch.Tensor):
-        x = self.net(x)
-
-        return x
+        return self.net(x)
 
 
 class Autoencoder(nn.Module):
@@ -89,8 +80,7 @@ class Autoencoder(nn.Module):
         lat_vec = sample_norm(mean=lat_mean, logvar=lat_logvar)
 
         out = self.auto_out(lat_vec)
-        # out = self.auto_out(lat_vec)
-        return out, lat_mean, lat_logvar
+        return out, lat_mean, lat_logvar, lat_vec
 
     @staticmethod
     def create(in_size: int, latent: int, device):

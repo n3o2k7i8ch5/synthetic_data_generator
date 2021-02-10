@@ -22,7 +22,7 @@ data_train = DataLoader(
     shuffle=True
 )
 
-LATENT_SPACE_SIZE = 10
+LATENT_SPACE_SIZE = 3
 IN_SIZE = 3
 
 # Initialize generator and discriminator
@@ -34,8 +34,8 @@ adversarial_loss = torch.nn.MSELoss()
 print(generator)
 print(discriminator)
 
-optimizer_G = torch.optim.SGD(generator.parameters(), lr=0.001)
-optimizer_D = torch.optim.SGD(discriminator.parameters(), lr=0.002)
+optimizer_G = torch.optim.Adam(generator.parameters(), lr=0.001)
+optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=0.002)
 
 # ----------
 #  Training
@@ -96,6 +96,7 @@ for epoch in range(200):
             show_quality(
                 real=real_data,
                 gen=gen_data,
+                save=True,
             )
 
         batches_done = epoch * len(data_train) + n_batch
